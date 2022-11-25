@@ -10,6 +10,7 @@ try {
     host: process.env.NEXT_PUBLIC_DB_HOST,
     port: process.env.NEXT_PUBLIC_DB_PORT,
     database: process.env.NEXT_PUBLIC_DB,
+    multipleStatements: true,
   });
 } catch (err) {
   console.error(err);
