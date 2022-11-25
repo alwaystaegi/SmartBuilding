@@ -39,7 +39,7 @@ export default function Sidebar(props: LayoutProps) {
         >
           <a
             className="sidebar-brand d-flex align-items-center justify-content-center"
-            href=""
+            href="/"
           >
             <div className="sidebar-brand-icon rotate-n-15">
               <i className="fas fa-laugh-wink"></i>

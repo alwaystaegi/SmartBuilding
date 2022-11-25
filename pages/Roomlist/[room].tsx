@@ -33,9 +33,7 @@ useEffect(()=>{
 
   return (
     <Sidebar>
- <LineChart width={100} height={100} data={data}>
-    <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-  </LineChart>
+ 
       <div id="content-wrapper" className="d-flex flex-column">
         <div id="content">
           <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
