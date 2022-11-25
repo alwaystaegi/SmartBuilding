@@ -9186,6 +9186,9 @@ a:focus {
 .text-lg {
   font-size: 1.2rem;
 }
+.text-xl {
+  font-size: 1.7rem;
+}
 .text-gray-100 {
   color: #f8f9fc !important;
 }
@@ -10024,6 +10027,7 @@ form.user .btn-user {
   line-height: 1;
   width: 12.5rem;
 }
+
 @-webkit-keyframes noise-anim {
   0% {
     clip: rect(49px, 9999px, 40px, 0);
@@ -10318,4 +10322,8 @@ footer.sticky-footer .copyright {
 }
 div.sidebar-toggled footer.sticky-footer {
   width: 100%;
+}
+
+.RoomCard {
+  height: 15rem;
 }

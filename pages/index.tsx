@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { REPL_MODE_SLOPPY } from "repl";
 import Sidebar from "../component/sidebar";
 interface roomdata{
   id : number
@@ -54,18 +55,25 @@ export default function Home() {
 
 
 
-  const getDashbord=(room:string)=>{
+  const getDashbord=(room:string,index:number)=>{
     
     return(
       
-      <div key={room} className="col-xl-3 col-md-6 mb-4">
-    <div className="card border-left-primary shadow h-100 py-2">
-        <div className="card-body">
+      <div key={room} className="col-xl-2 col-lg-2 col-md-2 mb-2 RoomCard">
+    <div className="card border-left-primary shadow h-100 py-2 ">
+        <div className="card-body ">
             <div className="row no-gutters align-items-center">
-                <div className="col mr-2">
-                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                <div className="col mr-2 ">
+                    <div className="text-xl font-weight-bold text-primary text-uppercase mb-1">
                         {room}</div>
-                   
+                    <div> 
+
+                  {roomdatas[index]?.co2?<div>이산화탄소 농도   <span className="table-bordered text-xl font-weight-bold">{roomdatas[index].co2}</span></div>:null}
+                  {roomdatas[index]?.humidity?<div>습도{roomdatas[index].humidity}</div>:null}
+                  {roomdatas[index]?.pir?<div>모션센서{roomdatas[index].pir}</div>:null}
+                   {roomdatas[index]?.temperature?<div>온도{roomdatas[index].temperature}</div>:null} 
+  
+                    </div>
 
                 </div>
                 <div className="col-auto">
@@ -80,14 +88,11 @@ export default function Home() {
 
   
   const getRoomdata=(room:string)=>{
-console.log(room)
 
     fetch(`/api/getdata?Room=${room}&recent=true`,{method:
         "POST"}).then((res)=>res.json())
         .then((json : response)=>{
-          console.log("함수가 실행됨")
             setRoomdatas((recentdata)=>{
-
               return [...recentdata,json.results]
             })
         }) 
@@ -115,68 +120,13 @@ console.log(room)
 </div>
 
 <div className="row">
-
-   {roomlist.map((val)=>{
-      return getDashbord(val)
+   {
+    roomlist?.map((val,idx)=>{
+      console.log(val)
+      return getDashbord(val,idx)
 
 
    })}
-
-    <div className="col-xl-3 col-md-6 mb-4">
-        <div className="card border-left-success shadow h-100 py-2">
-            <div className="card-body">
-                <div className="row no-gutters align-items-center">
-                    <div className="col mr-2">
-                        <div className="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Earnings (Annual)</div>
-                        <div className="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
-                    </div>
-                    <div className="col-auto">
-                        <i className="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div className="col-xl-3 col-md-6 mb-4">
-        <div className="card border-left-info shadow h-100 py-2">
-            <div className="card-body">
-                <div className="row no-gutters align-items-center">
-                    <div className="col mr-2">
-                        <div className="text-xs font-weight-bold text-info text-uppercase mb-1">Tasks
-                        </div>
-                        <div className="row no-gutters align-items-center">
-                            <div className="col-auto">
-                                <div className="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div className="col-auto">
-                        <i className="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div className="col-xl-3 col-md-6 mb-4">
-        <div className="card border-left-warning shadow h-100 py-2">
-            <div className="card-body">
-                <div className="row no-gutters align-items-center">
-                    <div className="col mr-2">
-                        <div className="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            Pending Requests</div>
-                        <div className="h5 mb-0 font-weight-bold text-gray-800">18</div>
-                    </div>
-                    <div className="col-auto">
-                        <i className="fas fa-comments fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 
