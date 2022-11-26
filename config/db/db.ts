@@ -10,5 +10,4 @@ conn = {
   database: process.env.NEXT_PUBLIC_DB,
   multipleStatements: true,
 };
-console.log(conn);
 module.exports = conn;

@@ -92,16 +92,6 @@ export default function Sidebar(props: LayoutProps) {
                     </div>
                   );
                 })}
-                <div className="collapse-item ">
-                  <Link className="collapse-item" href="/">
-                    Room
-                  </Link>
-                </div>
-                <div className="collapse-item">
-                  <Link className="collapse-item" href="/">
-                    Cards
-                  </Link>
-                </div>
               </div>
             </div>
           </li>
