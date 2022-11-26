@@ -17,6 +17,7 @@ export default function Sidebar(props: LayoutProps) {
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
+        console.log("try");
         setRoomlist(json);
       });
   }, []);

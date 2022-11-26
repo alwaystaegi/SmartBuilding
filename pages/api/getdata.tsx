@@ -1,12 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { roomdata } from "@prisma/client";
-const db = require("../../config/db/db");
+const conn = require("../../config/db/db");
+const mysql = require("mysql2");
 interface room {
   Room: string;
 }
 
 export default function test(req: NextApiRequest, res: NextApiResponse) {
-  console.log(req.query);
+  let db;
+  db = mysql.createConnection(conn);
 
   if (req.query.recent == "true") {
     db.query(
@@ -20,10 +22,10 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
           console.log(
             `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE pir AND Room = ('\\'${req.query.Room}\\'') IS NOT NULL ORDER BY ctime DESC LIMIT 1`
           );
-          // console.log(results, "통과");
-          console.log(results[1]);
+
           results[0][0]["ptime"] = results[1][0]["ptime"];
           results[0][0]["pir"] = results[1][0]["pir"];
+          console.log(results[0][0]);
           return res.status(200).json({
             results: results[0][0],
           });
@@ -32,22 +34,15 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
     );
   } else {
     db.query(
-      "SELECT Room FROM roomdata",
+      `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 10;`,
       async function (err: any, result: any) {
         if (err) {
           console.log(err);
           return res.status(400).json(result);
-        } else {
-          result = result.filter(function (item1: room, idx1: number) {
-            return (
-              result.findIndex(function (item2: room) {
-                return item1.Room == item2.Room;
-              }) == idx1
-            );
-          });
-          return res.status(200).json(result);
         }
+        return res.status(200).json(result);
       }
     );
   }
+  db.end();
 }

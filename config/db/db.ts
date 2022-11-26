@@ -1,19 +1,15 @@
 export {};
-const mysql = require("mysql2");
+
 require("dotenv").config();
-let db;
+let conn;
 
-try {
-  db = mysql.createConnection({
-    user: process.env.NEXT_PUBLIC_DB_USER,
-    password: process.env.NEXT_PUBLIC_DB_PASSWORD,
-    host: process.env.NEXT_PUBLIC_DB_HOST,
-    port: process.env.NEXT_PUBLIC_DB_PORT,
-    database: process.env.NEXT_PUBLIC_DB,
-    multipleStatements: true,
-  });
-} catch (err) {
-  console.error(err);
-}
+conn = {
+  user: process.env.NEXT_PUBLIC_DB_USER,
+  password: process.env.NEXT_PUBLIC_DB_PASSWORD,
+  host: process.env.NEXT_PUBLIC_DB_HOST,
+  port: process.env.NEXT_PUBLIC_DB_PORT,
+  database: process.env.NEXT_PUBLIC_DB,
+  multipleStatements: true,
+};
 
-module.exports = db;
+module.exports = conn;
