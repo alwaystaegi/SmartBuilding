@@ -4,7 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Sidebar from "../../component/sidebar";
-import { LineChart, Line } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface roomdata {
   id: number;
@@ -20,10 +28,21 @@ interface roomdata {
   ttime: number;
   temperature: number;
 }
+interface datas {
+  data: number;
+  time: number;
+}
 
 export default function Room() {
   const [room, setRoom] = useState("");
-  const [roomdata, setRoomdata] = useState<roomdata[]>([]);
+  const [roomdatas, setRoomdatas] = useState<roomdata[]>([]);
+
+  const [co2Datas, setCo2Datas] = useState<datas[]>([]);
+  const [humidityDatas, setHumidityDatas] = useState<datas[]>([]);
+  const [lightDatas, setLightDatas] = useState<datas[]>([]);
+  const [pirDatas, setPirDatas] = useState<datas[]>([]);
+  const [temperatureDatas, setTemperatureDatas] = useState<datas[]>([]);
+
   const router = useRouter();
   const data = [{ name: "Page A", uv: 400, pv: 2400, amt: 2400 }];
   useEffect(() => {
@@ -31,19 +50,30 @@ export default function Room() {
   }, [router.query]);
 
   useEffect(() => {
-    if (room)
-      fetch(`/api/getdata?Room=${room}&recent=false`, { method: "POST" })
-        .then((res) => res.json())
-        .then((json: roomdata[]) => {
-          console.log(json);
-          setRoomdata(json);
-        });
+    if (room) setRoomdatas([]);
+    fetch(`/api/getdata?Room=${room}&recent=false`, { method: "POST" })
+      .then((res) => res.json())
+      .then((json: roomdata[]) => {
+        setRoomdatas(json);
+        console.log(json);
+      });
   }, [room]);
+  const converttime = (unixtime: number) => {
+    let date = new Date(unixtime * 1000);
+
+    return (
+      date.getHours().toString().padStart(2, "0") +
+      ":" +
+      date.getMinutes().toString().padStart(2, "0") +
+      ":" +
+      date.getSeconds().toString().padStart(2, "0")
+    );
+  };
 
   const getChart = () => {
     return (
       <>
-        {roomdata[0]?.co2 ? (
+        {roomdatas[0]?.co2 ? (
           <div className="col-xl-6 col-lg-6">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -51,13 +81,42 @@ export default function Room() {
               </div>
               <div className="card-body">
                 <div className="chart-area">
-                  <canvas id="myAreaChart"></canvas>
+                  {/* 차트 */}
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      width={600}
+                      height={400}
+                      data={roomdatas.map((roomdata) => {
+                        return {
+                          name: converttime(roomdata.ctime),
+                          uv: roomdata.co2,
+                        };
+                      })}
+                      margin={{
+                        top: 10,
+                        right: 30,
+                        left: 0,
+                        bottom: 0,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" fontSize={10} />
+                      <YAxis />
+                      <Tooltip />
+                      <Area
+                        type="monotone"
+                        dataKey="uv"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
           </div>
         ) : null}
-        {roomdata[0]?.humidity ? (
+        {roomdatas[0]?.humidity ? (
           <div className="col-xl-6 col-lg-6">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -71,7 +130,7 @@ export default function Room() {
             </div>
           </div>
         ) : null}
-        {roomdata[0]?.light ? (
+        {roomdatas[0]?.light ? (
           <div className="col-xl-6 col-lg-6">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -111,7 +170,7 @@ export default function Room() {
             </div>
 
             <div className="row">
-              {roomdata ? getChart() : null}
+              {roomdatas ? getChart() : null}
 
               <div className="col-xl-4 col-lg-5">
                 <div className="card shadow mb-4">

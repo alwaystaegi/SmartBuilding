@@ -9959,6 +9959,7 @@ form.user .btn-user {
   color: #fff;
   background-color: #e12717;
   border-color: #e6e6e6;
+  cursor: pointer;
 }
 .btn-google.focus,
 .btn-google:focus {
@@ -10325,5 +10326,5 @@ div.sidebar-toggled footer.sticky-footer {
 }
 
 .RoomCard {
-  height: 30rem;
+  height: 15rem;
 }

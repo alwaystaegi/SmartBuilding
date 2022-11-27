@@ -12,7 +12,7 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.query.recent == "true") {
     db.query(
-      `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE pir AND Room = ('\\'${req.query.Room}\\'') IS NOT NULL ORDER BY ctime DESC LIMIT 1`,
+      `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE Room = ('\\'${req.query.Room}\\'') AND pir IS NOT NULL ORDER BY ctime DESC LIMIT 1`,
       async function (err: any, results: any) {
         if (err) {
           console.log("여기서 오류");
@@ -20,9 +20,9 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
           return res.status(400).json(results);
         } else {
           console.log(
-            `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE pir AND Room = ('\\'${req.query.Room}\\'') IS NOT NULL ORDER BY ctime DESC LIMIT 1`
+            `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE Room = ('\\'${req.query.Room}\\'') AND pir IS NOT NULL ORDER BY ctime DESC LIMIT 1`
           );
-
+          console.log("test", results[1][0]);
           results[0][0]["ptime"] = results[1][0]["ptime"];
           results[0][0]["pir"] = results[1][0]["pir"];
           console.log(results[0][0]);
@@ -34,7 +34,7 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
     );
   } else {
     db.query(
-      `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 10;`,
+      `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime ASC LIMIT 1000;`,
       async function (err: any, result: any) {
         if (err) {
           console.log(err);
