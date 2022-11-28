@@ -7,43 +7,41 @@ interface room {
 interface roomdata {
   id: number;
   Room: string;
-  ctime: number;
+  ctime: Date;
   co2: number;
-  htime: number;
+  htime: Date;
   humidity: number;
-  ltime: number;
+  ltime: Date;
   light: number;
-  ptime: number;
+  ptime: Date;
   pir: number;
-  ttime: number;
+  ttime: Date;
   temperature: number;
 }
 interface response {
   max: roomdata[];
   min: roomdata[];
 }
-export default function test(req: NextApiRequest, res: NextApiResponse) {
+export default function getdata(req: NextApiRequest, res: NextApiResponse) {
   let db;
+  console.log("호출됨");
   db = mysql.createConnection(conn);
   if (!req.query.Room) {
     return;
   }
   if (req.query.recent == "true") {
     db.query(
-      `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE Room = ('\\'${req.query.Room}\\'') AND pir IS NOT NULL ORDER BY ctime DESC LIMIT 1`,
+      `SELECT * FROM roomdata where Room = ('${req.query.Room}') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE Room = ('${req.query.Room}') AND pir IS NOT NULL ORDER BY ctime DESC LIMIT 1`,
       async function (err: any, results: any) {
         if (err) {
           console.log("여기서 오류");
           console.log(err);
           return res.status(400).json(results);
         } else {
-          console.log(
-            `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime DESC LIMIT 1;SELECT pir,ptime FROM roomdata WHERE Room = ('\\'${req.query.Room}\\'') AND pir IS NOT NULL ORDER BY ctime DESC LIMIT 1`
-          );
-
           results[0][0]["ptime"] = results[1][0]["ptime"];
           results[0][0]["pir"] = results[1][0]["pir"];
 
+          // console.log(results[0][0]);
           return res.status(200).json({
             results: results[0][0],
           });
@@ -52,27 +50,27 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
     );
   } else {
     db.query(
-      `SELECT * FROM roomdata where Room = ('\\'${req.query.Room}\\'') ORDER BY ctime ASC LIMIT 10000;`,
+      `SELECT * FROM roomdata where Room = ('${req.query.Room}') ORDER BY ctime ASC LIMIT 10000;`,
       async function (err: any, results: roomdata[]) {
         if (err) {
           console.log(err);
           return res.status(400).json(results);
         }
-        console.log(results[0].co2);
+
         let count = 0;
         let maxlist: roomdata[] = [];
         let minlist: roomdata[] = [];
 
-        let maxco2 = [0, 0];
-        let maxhumidity = [0, 0];
-        let maxlight = [0, 0];
-        let maxpir = [0, 0];
-        let maxtemperature = [0, 0];
-        let minco2 = [0, 0];
-        let minhumidity = [0, 0];
-        let minlight = [0, 0];
-        let minpir = [0, 0];
-        let mintemperature = [0, 0];
+        let maxco2: [number, Date] = [0, new Date()];
+        let maxhumidity: [number, Date] = [0, new Date()];
+        let maxlight: [number, Date] = [0, new Date()];
+        let maxpir: [number, Date] = [0, new Date()];
+        let maxtemperature: [number, Date] = [0, new Date()];
+        let minco2: [number, Date] = [0, new Date()];
+        let minhumidity: [number, Date] = [0, new Date()];
+        let minlight: [number, Date] = [0, new Date()];
+        let minpir: [number, Date] = [0, new Date()];
+        let mintemperature: [number, Date] = [0, new Date()];
         results.forEach((result, idx) => {
           if (count === 0) {
             maxco2 = [result.co2, result.ctime];
@@ -164,6 +162,7 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
             count = count + 1;
           }
         });
+        // console.log(maxlist, minlist);
         return res.status(200).json({ max: maxlist, min: minlist });
       }
     );

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Sidebar from "../../component/sidebar";
+import Sidebar from "../../component/Sidebar";
 import { Line } from "react-chartjs-2";
 
 import {
@@ -31,15 +31,15 @@ ChartJS.register(
 interface roomdata {
   id: number;
   Room: string;
-  ctime: number;
+  ctime: Date;
   co2: number;
-  htime: number;
+  htime: Date;
   humidity: number;
-  ltime: number;
+  ltime: Date;
   light: number;
-  ptime: number;
+  ptime: Date;
   pir: number;
-  ttime: number;
+  ttime: Date;
   temperature: number;
 }
 interface datas {
@@ -56,12 +56,7 @@ export default function Room() {
   const [roomdatas, setRoomdatas] = useState<roomdata[]>([]);
   const [minRoomDatas, setMinRoomDatas] = useState<roomdata[]>([]);
   const [maxRoomDatas, setMaxRoomDatas] = useState<roomdata[]>([]);
-  const [co2Datas, setCo2Datas] = useState<datas[]>([]);
-  const [humidityDatas, setHumidityDatas] = useState<datas[]>([]);
-  const [lightDatas, setLightDatas] = useState<datas[]>([]);
-  const [pirDatas, setPirDatas] = useState<datas[]>([]);
-  const [temperatureDatas, setTemperatureDatas] = useState<datas[]>([]);
-
+  const [timerID, setTimerID] = useState<NodeJS.Timer>();
   const router = useRouter();
   const data = [{ name: "Page A", uv: 400, pv: 2400, amt: 2400 }];
   useEffect(() => {
@@ -81,7 +76,10 @@ export default function Room() {
           })
         );
       });
-    setInterval(() => {
+    if (timerID) {
+      window.clearInterval(timerID);
+    }
+    const timer = setInterval(() => {
       fetch(`/api/getdata?Room=${room}&recent=false`, { method: "POST" })
         .then((res) => res.json())
         .then(({ max, min }: response) => {
@@ -94,9 +92,11 @@ export default function Room() {
           );
         });
     }, 6000);
+    setTimerID(timer);
   }, [room]);
-  const converttime = (unixtime: number) => {
-    let date = new Date(unixtime * 1000);
+
+  const converttime = (getdate: Date) => {
+    let date = new Date(getdate);
 
     return (
       date.getHours().toString().padStart(2, "0") +
@@ -110,7 +110,7 @@ export default function Room() {
       <>
         {/* 이산화탄소 차트 */}
         {maxRoomDatas[0]?.co2 ? (
-          <div className="col-xl-5 col-lg-5">
+          <div className="col-xl-5 col-lg-6 col-md-8">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">CO2</h6>
@@ -169,7 +169,7 @@ export default function Room() {
         ) : null}
         {/* 습도 차트  */}
         {maxRoomDatas[0]?.humidity ? (
-          <div className="col-xl-5 col-lg-5">
+          <div className="col-xl-5 col-lg-6 col-md-8">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">HUMIDITY</h6>
@@ -225,7 +225,7 @@ export default function Room() {
           </div>
         ) : null}
         {maxRoomDatas[0]?.light ? (
-          <div className="col-xl-5 col-lg-5">
+          <div className="col-xl-5 col-lg-6 col-md-8">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">Light</h6>
@@ -282,7 +282,7 @@ export default function Room() {
         ) : null}
 
         {maxRoomDatas[0]?.pir >= 0 ? (
-          <div className="col-xl-5 col-lg-5">
+          <div className="col-xl-5 col-lg-6 col-md-8">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">방문자</h6>
@@ -337,7 +337,7 @@ export default function Room() {
           </div>
         ) : null}
         {maxRoomDatas[0]?.temperature >= 0 ? (
-          <div className="col-xl-5 col-lg-5">
+          <div className="col-xl-5 col-lg-6 col-md-8">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">실내온도</h6>

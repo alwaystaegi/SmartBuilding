@@ -49,9 +49,13 @@ export default function Sidebar(props: LayoutProps) {
           <hr className="sidebar-divider my-0" />
 
           <li className="nav-item active">
-            <a className="nav-link" href="/">
+            <a className="nav-link" href="/dashboard">
               <i className="fas fa-fw fa-tachometer-alt"></i>
               <span>Dashboard</span>
+            </a>
+            <a className="nav-link" href="/roomcard">
+              <i className="fas fa-fw fa-tachometer-alt"></i>
+              <span>Roomcard(index 예정)</span>
             </a>
           </li>
           <hr className="sidebar-divider" />

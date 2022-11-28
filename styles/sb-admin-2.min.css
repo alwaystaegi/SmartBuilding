@@ -9894,7 +9894,7 @@ a:focus {
 }
 .chart-area {
   position: relative;
-  height: 10rem;
+  height: 20rem;
   width: 100%;
 }
 @media (min-width: 768px) {
@@ -10325,6 +10325,6 @@ div.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
 
-.RoomCard {
+.Dashboard {
   height: 15rem;
 }
