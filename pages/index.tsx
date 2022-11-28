@@ -50,7 +50,7 @@ export default function Home() {
       roomlist.forEach((room) => {
         getRoomdata(room);
       });
-    }, 5000);
+    }, 60000);
   }, []);
 
   const checkco2 = (co2: number) => {

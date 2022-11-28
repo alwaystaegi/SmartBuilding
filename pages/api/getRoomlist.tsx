@@ -25,7 +25,6 @@ export default function test(req: NextApiRequest, res: NextApiResponse) {
       result = result.map((val: { Room: string }) => {
         return val["Room"].replaceAll("'", "");
       });
-      // console.log(result);
       return res.status(200).json(result);
     }
   });

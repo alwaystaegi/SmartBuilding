@@ -4,15 +4,29 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Sidebar from "../../component/sidebar";
+import { Line } from "react-chartjs-2";
+
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
   Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+  Legend,
+} from "chart.js";
+import { O } from "chart.js/dist/chunks/helpers.core";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface roomdata {
   id: number;
@@ -32,11 +46,16 @@ interface datas {
   data: number;
   time: number;
 }
+interface response {
+  max: roomdata[];
+  min: roomdata[];
+}
 
 export default function Room() {
   const [room, setRoom] = useState("");
   const [roomdatas, setRoomdatas] = useState<roomdata[]>([]);
-
+  const [minRoomDatas, setMinRoomDatas] = useState<roomdata[]>([]);
+  const [maxRoomDatas, setMaxRoomDatas] = useState<roomdata[]>([]);
   const [co2Datas, setCo2Datas] = useState<datas[]>([]);
   const [humidityDatas, setHumidityDatas] = useState<datas[]>([]);
   const [lightDatas, setLightDatas] = useState<datas[]>([]);
@@ -53,10 +72,28 @@ export default function Room() {
     if (room) setRoomdatas([]);
     fetch(`/api/getdata?Room=${room}&recent=false`, { method: "POST" })
       .then((res) => res.json())
-      .then((json: roomdata[]) => {
-        setRoomdatas(json);
-        console.log(json);
+      .then(({ max, min }: response) => {
+        setMaxRoomDatas(max);
+        setMinRoomDatas(min);
+        console.log(
+          max.map((data) => {
+            return converttime(data.ctime);
+          })
+        );
       });
+    setInterval(() => {
+      fetch(`/api/getdata?Room=${room}&recent=false`, { method: "POST" })
+        .then((res) => res.json())
+        .then(({ max, min }: response) => {
+          setMaxRoomDatas(max);
+          setMinRoomDatas(min);
+          console.log(
+            max.map((data) => {
+              return converttime(data.ctime);
+            })
+          );
+        });
+    }, 6000);
   }, [room]);
   const converttime = (unixtime: number) => {
     let date = new Date(unixtime * 1000);
@@ -64,17 +101,16 @@ export default function Room() {
     return (
       date.getHours().toString().padStart(2, "0") +
       ":" +
-      date.getMinutes().toString().padStart(2, "0") +
-      ":" +
-      date.getSeconds().toString().padStart(2, "0")
+      date.getMinutes().toString().padStart(2, "0")
     );
   };
 
   const getChart = () => {
     return (
       <>
-        {roomdatas[0]?.co2 ? (
-          <div className="col-xl-6 col-lg-6">
+        {/* 이산화탄소 차트 */}
+        {maxRoomDatas[0]?.co2 ? (
+          <div className="col-xl-5 col-lg-5">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">CO2</h6>
@@ -82,63 +118,273 @@ export default function Room() {
               <div className="card-body">
                 <div className="chart-area">
                   {/* 차트 */}
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      width={600}
-                      height={400}
-                      data={roomdatas.map((roomdata) => {
-                        return {
-                          name: converttime(roomdata.ctime),
-                          uv: roomdata.co2,
-                        };
-                      })}
-                      margin={{
-                        top: 10,
-                        right: 30,
-                        left: 0,
-                        bottom: 0,
-                      }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" fontSize={10} />
-                      <YAxis />
-                      <Tooltip />
-                      <Area
-                        type="monotone"
-                        dataKey="uv"
-                        stroke="#8884d8"
-                        fill="#8884d8"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  <Line
+                    data={{
+                      labels: maxRoomDatas.map((data) => {
+                        return converttime(data.ctime);
+                      }),
+                      datasets: [
+                        {
+                          label: "maxCO2",
+                          data: [
+                            ...maxRoomDatas.map((data) => {
+                              return data.co2;
+                            }),
+                            350,
+                            600,
+                          ],
+                          borderColor: "rgb(255, 99, 132)",
+                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        },
+                        {
+                          label: "minCO2",
+                          data: minRoomDatas.map((data) => {
+                            return data.co2;
+                          }),
+                          borderColor: "rgb(53, 162, 235)",
+                          backgroundColor: "rgba(53, 162, 235, 0.5)",
+                        },
+                      ],
+                    }}
+                    height={null}
+                    width={null}
+                    options={{
+                      responsive: false,
+                      scales: {},
+                      maintainAspectRatio: false,
+                      aspectRatio: 1,
+                      plugins: {
+                        tooltip: {
+                          enabled: true,
+                          mode: "x",
+                          intersect: false,
+                        },
+                      },
+                    }}
+                  ></Line>
                 </div>
               </div>
             </div>
           </div>
         ) : null}
-        {roomdatas[0]?.humidity ? (
-          <div className="col-xl-6 col-lg-6">
+        {/* 습도 차트  */}
+        {maxRoomDatas[0]?.humidity ? (
+          <div className="col-xl-5 col-lg-5">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">HUMIDITY</h6>
               </div>
               <div className="card-body">
                 <div className="chart-area">
-                  <canvas id="myAreaChart"></canvas>
+                  {/* 차트 */}
+                  <Line
+                    data={{
+                      labels: maxRoomDatas.map((data) => {
+                        return converttime(data.htime);
+                      }),
+                      datasets: [
+                        {
+                          label: "maxHumidity",
+                          data: [
+                            ...maxRoomDatas.map((data) => {
+                              return data.humidity;
+                            }),
+                          ],
+                          borderColor: "rgb(255, 99, 132)",
+                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        },
+                        {
+                          label: "minHumidity",
+                          data: minRoomDatas.map((data) => {
+                            return data.humidity;
+                          }),
+                          borderColor: "rgb(53, 162, 235)",
+                          backgroundColor: "rgba(53, 162, 235, 0.5)",
+                        },
+                      ],
+                    }}
+                    height={null}
+                    width={null}
+                    options={{
+                      responsive: false,
+                      scales: {},
+                      maintainAspectRatio: false,
+                      aspectRatio: 1,
+                      plugins: {
+                        tooltip: {
+                          enabled: true,
+                          mode: "x",
+                          intersect: false,
+                        },
+                      },
+                    }}
+                  ></Line>
                 </div>
               </div>
             </div>
           </div>
         ) : null}
-        {roomdatas[0]?.light ? (
-          <div className="col-xl-6 col-lg-6">
+        {maxRoomDatas[0]?.light ? (
+          <div className="col-xl-5 col-lg-5">
             <div className="card shadow mb-4">
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">Light</h6>
               </div>
               <div className="card-body">
                 <div className="chart-area">
-                  <canvas id="myAreaChart"></canvas>
+                  <Line
+                    data={{
+                      labels: maxRoomDatas.map((data) => {
+                        return converttime(data.ltime);
+                      }),
+                      datasets: [
+                        {
+                          label: "maxLight",
+                          data: [
+                            ...maxRoomDatas.map((data) => {
+                              return data.light;
+                            }),
+                            0,
+                          ],
+                          borderColor: "rgb(255, 99, 132)",
+                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        },
+                        {
+                          label: "minLight",
+                          data: minRoomDatas.map((data) => {
+                            return data.light;
+                          }),
+                          borderColor: "rgb(53, 162, 235)",
+                          backgroundColor: "rgba(53, 162, 235, 0.5)",
+                        },
+                      ],
+                    }}
+                    height={null}
+                    width={null}
+                    options={{
+                      responsive: false,
+                      scales: {},
+                      maintainAspectRatio: false,
+                      aspectRatio: 1,
+                      plugins: {
+                        tooltip: {
+                          enabled: true,
+                          mode: "x",
+                          intersect: false,
+                        },
+                      },
+                    }}
+                  ></Line>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {maxRoomDatas[0]?.pir >= 0 ? (
+          <div className="col-xl-5 col-lg-5">
+            <div className="card shadow mb-4">
+              <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 className="m-0 font-weight-bold text-primary">방문자</h6>
+              </div>
+              <div className="card-body">
+                <div className="chart-area">
+                  <Line
+                    data={{
+                      labels: maxRoomDatas.map((data) => {
+                        return converttime(data.ptime);
+                      }),
+                      datasets: [
+                        {
+                          label: "maxPir",
+                          data: [
+                            ...maxRoomDatas.map((data) => {
+                              return data.pir;
+                            }),
+                            0,
+                          ],
+                          borderColor: "rgb(255, 99, 132)",
+                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        },
+                        {
+                          label: "minPir",
+                          data: minRoomDatas.map((data) => {
+                            return data.pir;
+                          }),
+                          borderColor: "rgb(53, 162, 235)",
+                          backgroundColor: "rgba(53, 162, 235, 0.5)",
+                        },
+                      ],
+                    }}
+                    height={null}
+                    width={null}
+                    options={{
+                      responsive: false,
+                      maintainAspectRatio: false,
+                      aspectRatio: 1,
+                      plugins: {
+                        tooltip: {
+                          enabled: true,
+                          mode: "x",
+                          intersect: false,
+                        },
+                      },
+                    }}
+                  ></Line>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {maxRoomDatas[0]?.temperature >= 0 ? (
+          <div className="col-xl-5 col-lg-5">
+            <div className="card shadow mb-4">
+              <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 className="m-0 font-weight-bold text-primary">실내온도</h6>
+              </div>
+              <div className="card-body">
+                <div className="chart-area">
+                  <Line
+                    data={{
+                      labels: maxRoomDatas.map((data) => {
+                        return converttime(data.ttime);
+                      }),
+                      datasets: [
+                        {
+                          label: "최고온도",
+                          data: maxRoomDatas.map((data) => {
+                            return data.temperature;
+                          }),
+
+                          borderColor: "rgb(255, 99, 132)",
+                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        },
+                        {
+                          label: "최저온도",
+                          data: minRoomDatas.map((data) => {
+                            return data.temperature;
+                          }),
+                          borderColor: "rgb(53, 162, 235)",
+                          backgroundColor: "rgba(53, 162, 235, 0.5)",
+                        },
+                      ],
+                    }}
+                    height={null}
+                    width={null}
+                    options={{
+                      responsive: false,
+                      scales: {},
+                      maintainAspectRatio: false,
+                      aspectRatio: 1,
+                      plugins: {
+                        tooltip: {
+                          enabled: true,
+                          mode: "x",
+                          intersect: false,
+                        },
+                      },
+                    }}
+                  ></Line>
                 </div>
               </div>
             </div>
@@ -160,215 +406,9 @@ export default function Room() {
               <h1 className="h3 mb-0 text-gray-800">
                 <span className="font-weight-bold">{room}</span> 호실 현황
               </h1>
-              <a
-                href="#"
-                className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-              >
-                <i className="fas fa-download fa-sm text-white-50"></i> Generate
-                Report
-              </a>
             </div>
 
-            <div className="row">
-              {roomdatas ? getChart() : null}
-
-              <div className="col-xl-4 col-lg-5">
-                <div className="card shadow mb-4">
-                  <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 className="m-0 font-weight-bold text-primary">
-                      Revenue Sources
-                    </h6>
-                    <div className="dropdown no-arrow">
-                      <a
-                        className="dropdown-toggle"
-                        href="#"
-                        role="button"
-                        id="dropdownMenuLink"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <i className="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                      </a>
-                      <div
-                        className="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                        aria-labelledby="dropdownMenuLink"
-                      >
-                        <div className="dropdown-header">Dropdown Header:</div>
-                        <a className="dropdown-item" href="#">
-                          Action
-                        </a>
-                        <a className="dropdown-item" href="#">
-                          Another action
-                        </a>
-                        <div className="dropdown-divider"></div>
-                        <a className="dropdown-item" href="#">
-                          Something else here
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="card-body">
-                    <div className="chart-pie pt-4 pb-2">
-                      <canvas id="myPieChart"></canvas>
-                    </div>
-                    <div className="mt-4 text-center small">
-                      <span className="mr-2">
-                        <i className="fas fa-circle text-primary"></i> Direct
-                      </span>
-                      <span className="mr-2">
-                        <i className="fas fa-circle text-success"></i> Social
-                      </span>
-                      <span className="mr-2">
-                        <i className="fas fa-circle text-info"></i> Referral
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-lg-6 mb-4">
-                <div className="card shadow mb-4">
-                  <div className="card-header py-3">
-                    <h6 className="m-0 font-weight-bold text-primary">
-                      Projects
-                    </h6>
-                  </div>
-                  <div className="card-body">
-                    <h4 className="small font-weight-bold">
-                      Server Migration <span className="float-right">20%</span>
-                    </h4>
-                    <div className="progress mb-4"></div>
-                    <h4 className="small font-weight-bold">
-                      Sales Tracking <span className="float-right">40%</span>
-                    </h4>
-                    <div className="progress mb-4"></div>
-                    <h4 className="small font-weight-bold">
-                      Customer Database <span className="float-right">60%</span>
-                    </h4>
-                    <div className="progress mb-4"></div>
-                    <h4 className="small font-weight-bold">
-                      Payout Details <span className="float-right">80%</span>
-                    </h4>
-                    <div className="progress mb-4"></div>
-                    <h4 className="small font-weight-bold">
-                      Account Setup{" "}
-                      <span className="float-right">Complete!</span>
-                    </h4>
-                    <div className="progress"></div>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-primary text-white shadow">
-                      <div className="card-body">
-                        Primary
-                        <div className="text-white-50 small">#4e73df</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-success text-white shadow">
-                      <div className="card-body">
-                        Success
-                        <div className="text-white-50 small">#1cc88a</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-info text-white shadow">
-                      <div className="card-body">
-                        Info
-                        <div className="text-white-50 small">#36b9cc</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-warning text-white shadow">
-                      <div className="card-body">
-                        Warning
-                        <div className="text-white-50 small">#f6c23e</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-danger text-white shadow">
-                      <div className="card-body">
-                        Danger
-                        <div className="text-white-50 small">#e74a3b</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-secondary text-white shadow">
-                      <div className="card-body">
-                        Secondary
-                        <div className="text-white-50 small">#858796</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-light text-black shadow">
-                      <div className="card-body">
-                        Light
-                        <div className="text-black-50 small">#f8f9fc</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 mb-4">
-                    <div className="card bg-dark text-white shadow">
-                      <div className="card-body">
-                        Dark
-                        <div className="text-white-50 small">#5a5c69</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-6 mb-4">
-                <div className="card shadow mb-4">
-                  <div className="card-header py-3">
-                    <h6 className="m-0 font-weight-bold text-primary">
-                      Illustrations
-                    </h6>
-                  </div>
-                  <div className="card-body">
-                    <div className="text-center"></div>
-                    <p>
-                      Add some quality, svg illustrations to your project
-                      courtesy of , a constantly updated collection of beautiful
-                      svg images that you can use completely free and without
-                      attribution!
-                    </p>
-                  </div>
-                </div>
-
-                <div className="card shadow mb-4">
-                  <div className="card-header py-3">
-                    <h6 className="m-0 font-weight-bold text-primary">
-                      Development Approach
-                    </h6>
-                  </div>
-                  <div className="card-body">
-                    <p>
-                      SB Admin 2 makes extensive use of Bootstrap 4 utility
-                      classNamees in order to reduce CSS bloat and poor page
-                      performance. Custom CSS classNamees are used to create
-                      custom components and custom utility classNamees.
-                    </p>
-                    <p className="mb-0">
-                      Before working with this theme, you should become familiar
-                      with the Bootstrap framework, especially the utility
-                      classNamees.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="row">{maxRoomDatas ? getChart() : null}</div>
           </div>
         </div>
       </div>
