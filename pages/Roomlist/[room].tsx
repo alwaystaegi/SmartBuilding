@@ -17,7 +17,7 @@ import {
   Legend,
 } from "chart.js";
 import { NextPage } from "next";
-import { Sidebar } from "../../component/Sidebar";
+import Sidebar from "../../component/sidebar";
 ChartJS.register(
   CategoryScale,
   LinearScale,

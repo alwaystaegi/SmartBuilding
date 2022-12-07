@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { REPL_MODE_SLOPPY } from "repl";
-import Sidebar from "../component/Sidebar";
+import Sidebar from "../component/sidebar";
 import { ProgressBar } from "react-bootstrap";
 import { useRouter } from "next/router";
 import { responsivePropType } from "react-bootstrap/esm/createUtilityClasses";
