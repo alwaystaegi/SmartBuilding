@@ -17,7 +17,7 @@ import {
   Legend,
 } from "chart.js";
 import { O } from "chart.js/dist/chunks/helpers.core";
-
+// a
 ChartJS.register(
   CategoryScale,
   LinearScale,
