@@ -16,8 +16,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { O } from "chart.js/dist/chunks/helpers.core";
-// a
+import { NextPage } from "next";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -51,7 +51,7 @@ interface response {
   min: roomdata[];
 }
 
-export default function Room() {
+const Room: NextPage = () => {
   const [room, setRoom] = useState("");
   const [roomdatas, setRoomdatas] = useState<roomdata[]>([]);
   const [minRoomDatas, setMinRoomDatas] = useState<roomdata[]>([]);
@@ -414,4 +414,5 @@ export default function Room() {
       </div>
     </Sidebar>
   );
-}
+};
+export default Room;
