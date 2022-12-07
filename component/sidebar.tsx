@@ -53,10 +53,12 @@ export default function Sidebar(props: LayoutProps) {
               <i className="fas fa-fw fa-tachometer-alt"></i>
               <span>Dashboard</span>
             </a>
+            {/* 
+            //todo 언젠가... 다 만들기... 
             <a className="nav-link" href="/roomcard">
               <i className="fas fa-fw fa-tachometer-alt"></i>
               <span>Roomcard(index 예정)</span>
-            </a>
+            </a> */}
           </li>
           <hr className="sidebar-divider" />
 

@@ -146,8 +146,8 @@ export default function Room() {
                         },
                       ],
                     }}
-                    height={null}
-                    width={null}
+                    height={""}
+                    width={""}
                     options={{
                       responsive: false,
                       scales: {},
@@ -203,8 +203,8 @@ export default function Room() {
                         },
                       ],
                     }}
-                    height={null}
-                    width={null}
+                    height={""}
+                    width={""}
                     options={{
                       responsive: false,
                       scales: {},
@@ -259,8 +259,8 @@ export default function Room() {
                         },
                       ],
                     }}
-                    height={null}
-                    width={null}
+                    height={""}
+                    width={""}
                     options={{
                       responsive: false,
                       scales: {},
@@ -316,8 +316,8 @@ export default function Room() {
                         },
                       ],
                     }}
-                    height={null}
-                    width={null}
+                    height={""}
+                    width={""}
                     options={{
                       responsive: false,
                       maintainAspectRatio: false,
@@ -369,8 +369,8 @@ export default function Room() {
                         },
                       ],
                     }}
-                    height={null}
-                    width={null}
+                    height={""}
+                    width={""}
                     options={{
                       responsive: false,
                       scales: {},
