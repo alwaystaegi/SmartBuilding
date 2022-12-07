@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 interface LayoutProps {
   children?: React.ReactNode;
 }
-export default function Sidebar(props: LayoutProps) {
+export function Sidebar(props: LayoutProps) {
   const [collapse, setCollapse] = useState("collapse");
   const [roomlist, setRoomlist] = useState<string[]>([]);
 
