@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Sidebar from "../../component/Sidebar";
+
 import { Line } from "react-chartjs-2";
 
 import {
@@ -17,6 +17,7 @@ import {
   Legend,
 } from "chart.js";
 import { NextPage } from "next";
+import Sidebar from "../../component/Sidebar";
 
 ChartJS.register(
   CategoryScale,
